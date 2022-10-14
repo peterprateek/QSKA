@@ -8,5 +8,5 @@ Phase 2: EV Pre-Authentication {This phase deals with charging station authentic
 Phase 3: Pseudo-Identity Generation for Smart Meter {This phase handles pseudo-identity generation and session key generation for electric vehicles}. 
 Phase 4: Smart Meter Data Authentication and Verification {This phase handles privacy-preserving authenticated EV charging request reporting}.
 
-Miscellaneous: The QSKA Code (QSKA_Run.py) is provided. Besides, appropriate comments are available in the code started with # for understanding the concepts of the QSKA.
-Also, all resources (simulators, python packages and libraries) required installation for successful implementation are already included in the code.
+Miscellaneous: The QSKA Code (QSKA_Run.py) is provided. Besides, appropriate comments are available in the code starting with # for understanding the concepts of the QSKA.
+Also, all resources (simulators, python packages and libraries) that require installation for successful implementation are already included in the code.
