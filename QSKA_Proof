@@ -1,0 +1,73 @@
+Require Import Coq.Arith.Arith.
+Require Import Coq.Lists.List.
+Require Import Coq.Logic.Classical_Pred_Type.
+Require Import Coq.micromega.Lia.
+Require Import Coq.QArith.QArith_base.
+Require Import Coq.QArith.Qabs.
+Require Import Coq.QArith.Qmake.
+Require Import Coq.QArith.Qrelnums.
+Require Import Coq.Sets.Ensembles.
+Require Import Coq.Sets.Finite_sets.
+Require Import Coq.Sets.Powerset_facts.
+Require Import Coq.Sets.Setoid_sets.
+Require Import Coq.Sets.Subsets.
+Require Import Coq.Sets.Finite_sets_facts.
+
+(* Define the state vectors *)
+
+Definition ket0 := fun x : bool => if x then 0 else 1/sqrt(2).
+Definition ket1 := fun x : bool => if x then 1/sqrt(2) else 0.
+
+(* Define the encoding function *)
+
+Definition encode (b1 b2 : bool) := 
+  match b1, b2 with
+  | false, false => ket0
+  | false, true => ket1
+  | true, false => fun x => if x then 1/sqrt(2) else 1/sqrt(2)
+  | true, true => fun x => if x then 1/sqrt(2) else -1/sqrt(2)
+  end.
+
+(* Define the decoding function *)
+
+Definition decode (v : bool * bool) (s : bool -> C) :=
+  match v with
+  | (false, false) => s false
+  | (false, true) => s true
+  | (true, false) => (s false + s true) / sqrt(2)
+  | (true, true) => (s false - s true) / sqrt(2)
+  end.
+
+(* Define the superdense coding protocol *)
+
+Definition superdense_coding (b1 b2 : bool) :=
+  let encoded := encode b1 b2 in
+  let EV := Qubit (encoded false) (encoded true) in
+  let UC := measure EV in
+  decode (b1, b2) UC.
+
+(* Define the QSKA authentication protocol *)
+
+Definition authenticate (msg key : bool * bool) :=
+  let EV_key := superdense_coding (fst msg) (fst key) in
+  let UC_key := superdense_coding (snd msg) (snd key) in
+  match (fst key, snd key) with
+  | (false, false) => fst msg = false /\ snd msg = false
+  | (false, true) => fst msg = false /\ snd msg = true
+  | (true, false) => fst msg = true /\ (bob_key = ket0 \/ bob_key = ket1)
+  | (true, true) => fst msg = true /\ (bob_key = ket0 \/ bob_key = -1 * ket1)
+  end.
+
+(* QSKA Proof*)
+
+QSKA :
+  authenticate (true, false) (true, true) = true /\ authenticate (true, true) (true, true) = true.
+Proof.
+  unfold authenticate, superdense_coding, encode, decode.
+  simpl. repeat rewrite Rmult_0_r. repeat rewrite Rmult_1_r.
+  repeat rewrite Ropp_0. repeat rewrite Rmult_1_l.
+  repeat rewrite <- Ropp_mult_distr_r.
+  assert ((/sqrt 2 * /sqrt 2) = /2) by (apply Qsqrt_two; lra).
+  repeat rewrite
+  reflexivity.
+Qed.
